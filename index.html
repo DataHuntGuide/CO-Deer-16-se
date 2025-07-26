@@ -1,0 +1,138 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colorado Heatmap - Updated Coordinates</title>
+
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    #map {
+      height: 100vh;
+      width: 100%;
+    }
+    .leaflet-control-layers {
+      background: white;
+      padding: 6px;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet.heat/dist/leaflet-heat.js"></script>
+  <script src="https://unpkg.com/leaflet-providers/leaflet-providers.js"></script>
+
+  <script>
+const coords = [
+  [40.41113, -106.61783],
+  [40.4258, -106.61245],
+  [40.42769, -106.61916],
+  [40.41265, -106.61887],
+  [40.42175, -106.62014],
+  [40.42572, -106.61671],
+  [40.41888, -106.62194],
+  [40.4065, -106.61835],
+  [40.41558, -106.62262],
+  [40.42, -106.62116],
+  [40.42, -106.62116],
+  [40.42, -106.62116],
+  [40.4259, -106.61237],
+  [40.5852, -106.6094],
+  [40.49872, -106.60398],
+  [40.44441, -106.50553],
+  [40.52554, -106.61172],
+  [40.50676, -106.61702],
+  [40.53271, -106.61679],
+  [40.4433, -106.51583],
+  [40.44985, -106.50829],
+  [40.65765, -106.57995],
+  [40.65765, -106.57995],
+  [40.66487, -106.59126],
+  [40.65647, -106.59292],
+  [40.65536, -106.59687],
+  [40.65536, -106.59687],
+  [40.64715, -106.6039],
+  [40.66024, -106.58379],
+  [40.65222, -106.5808],
+  [40.65704, -106.60339],
+  [40.64223, -106.5912],
+  [40.64669, -106.61969],
+  [40.64636, -106.6399],
+  [40.64769, -106.64907],
+  [40.61205, -106.60065],
+  [40.61118, -106.59002],
+  [40.61252, -106.58346],
+  [40.62934, -106.60198],
+  [40.61219, -106.61386],
+  [40.62981, -106.61297],
+  [40.60586, -106.59702],
+  [40.62174, -106.62635],
+  [40.60808, -106.5964],
+  [40.61387, -106.63131],
+  [40.61965, -106.6042],
+  [40.63028, -106.60375],
+  [40.61367, -106.5987],
+  [40.62766, -106.62112],
+  [40.61737, -106.62192],
+  [40.61252, -106.61784],
+  [40.61326, -106.60171],
+  [40.61077, -106.60118],
+  [40.61138, -106.59037],
+  [40.63963, -106.59462]
+];
+
+const map = L.map('map').setView([40.56251, -106.60275], 11);
+
+const topo = L.tileLayer(
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Topo_Map/MapServer/tile/{z}/{y}/{x}',
+  { attribution: 'Tiles &copy; Esri' }
+).addTo(map);
+
+const trails = L.tileLayer.provider('OpenTopoMap');
+const boundaries = L.tileLayer.provider('OpenStreetMap.HOT');
+
+const heatData = coords.map(c => [c[0], c[1], 8]);
+const heat = L.heatLayer(heatData, {
+  radius: 70,
+  blur: 40,
+  maxZoom: 17,
+  max: 3.0,
+  minOpacity: 0.5,
+  gradient: {
+    0.0: 'purple',
+    0.2: 'blue',
+    0.4: 'cyan',
+    0.6: 'lime',
+    0.8: 'yellow',
+    1.0: 'red'
+  }
+}).addTo(map);
+
+const gpsMarkers = L.layerGroup();
+coords.forEach(([lat, lng]) => {
+  L.circleMarker([lat, lng], {
+    radius: 5,
+    color: 'black',
+    fillColor: 'white',
+    fillOpacity: 0.8
+  })
+  .bindPopup(`${lat.toFixed(5)}, ${lng.toFixed(5)}`)
+  .addTo(gpsMarkers);
+});
+gpsMarkers.addTo(map);
+
+const overlays = {
+  "GPS Markers": gpsMarkers,
+  "Heatmap": heat,
+  "Boundaries": boundaries,
+  "Trails": trails
+};
+
+L.control.layers(null, overlays, { collapsed: false }).addTo(map);
+  </script>
+</body>
+</html>
